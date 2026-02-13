@@ -36,10 +36,10 @@ class SalesAssistant implements Agent, Conversational, HasTools
     /**
      * Get the list of messages comprising the conversation so far.
      */
-    // public function messages(): iterable
-    // {
-    //     return [];
-    // }
+    public function messages(): iterable
+    {
+        return [];
+    }
 
     /**
      * Get the tools available to the agent.

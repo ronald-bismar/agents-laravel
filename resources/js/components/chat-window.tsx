@@ -1,4 +1,4 @@
-import {parse} from "marked";
+import { parse } from "marked";
 import { useState } from "react";
 
 type ChatMessage = {
@@ -72,7 +72,9 @@ export default function ChatWindow() {
 
     function handleSend()
     {
-         setResponses((prev) => [
+        if (!message.trim()) return;
+        
+        setResponses((prev) => [
                 ...(prev || []),
                 {
                     id: prev ? prev.length + 1 : 1,
@@ -81,6 +83,8 @@ export default function ChatWindow() {
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 }
             ])
+        setMessage('');
+        
         fetch('/invoke-agent', {
             method: 'POST',
             body: JSON.stringify({message}),
@@ -88,13 +92,23 @@ export default function ChatWindow() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
             }
-        }).then(res => res.text()).then(data => {
+        }).then(res => res.json()).then(data => {
             setResponses((prev) => [
                 ...(prev || []),
                 {
                     id: prev ? prev.length + 1 : 1,
                     role: 'assistant',
-                    text: data,
+                    text: data.message || data.error || 'Error desconocido',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                }
+            ])
+        }).catch(err => {
+            setResponses((prev) => [
+                ...(prev || []),
+                {
+                    id: prev ? prev.length + 1 : 1,
+                    role: 'assistant',
+                    text: 'Error de conexión: ' + err.message,
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 }
             ])

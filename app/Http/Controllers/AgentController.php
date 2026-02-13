@@ -9,13 +9,29 @@ class AgentController extends Controller
 {
     public function callAgent(Request $request)
     {
-        $validated = $request->validate([
-            'message' => ['required']
-        ]);
+        try {
+            $validated = $request->validate([
+                'message' => ['required']
+            ]);
 
-        $response = (new SalesAssistant(auth()->user()))->forUser(auth()->user())
-                    ->prompt($validated['message']);
+            $user = auth()->user() ?? auth()->guard('sanctum')->user();
+            
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
-        return (string) $response;
+            $response = (new SalesAssistant($user))->forUser($user)
+                        ->prompt($validated['message']);
+
+            return response()->json([
+                'message' => (string) $response,
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'success' => false
+            ], 500);
+        }
     }
 }
