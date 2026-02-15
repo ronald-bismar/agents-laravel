@@ -27,7 +27,11 @@ class ListOrderToolForUser implements Tool
      */
     public function handle(Request $request): Stringable|string
     {
-        $orders = Order::where('user_id', $this->user->id)->get();
+        $limit = $request['limit'] ?? 5;
+        // Ensure limit is not excessive
+        $limit = min((int)$limit, 10);
+
+        $orders = Order::where('user_id', $this->user->id)->latest()->take($limit)->get();
         return $orders;
     }
 
@@ -37,7 +41,7 @@ class ListOrderToolForUser implements Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            
+            'limit' => $schema->integer()->nullable()->description('The number of orders to return (default: 5, max: 10)'),
         ];
     }
 }

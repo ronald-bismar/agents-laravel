@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => 'openai',
+    'default' => 'groq',
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',

@@ -1,5 +1,5 @@
-import { parse } from "marked";
-import { useState } from "react";
+import { parse } from 'marked';
+import { useState } from 'react';
 
 type ChatMessage = {
     id?: number;
@@ -8,13 +8,11 @@ type ChatMessage = {
     time: string;
 };
 
-
-
 function ChatHeader({ toggleId }: { toggleId: string }) {
     return (
         <header className="flex items-center justify-between border-b border-slate-200 bg-white/80 px-5 py-4 backdrop-blur">
             <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-xs tracking-[0.2em] text-slate-500 uppercase">
                     Atelier Chat
                 </p>
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -66,68 +64,80 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
 export default function ChatWindow() {
     const toggleId = 'chat-toggle';
-    const [message,setMessage] = useState('');
+    const [message, setMessage] = useState('');
     const [responses, setResponses] = useState<ChatMessage[]>();
-    
 
-    function handleSend()
-    {
+    function handleSend() {
         if (!message.trim()) return;
-        
+
         setResponses((prev) => [
-                ...(prev || []),
-                {
-                    id: prev ? prev.length + 1 : 1,
-                    role: 'user',
-                    text: message,
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                }
-            ])
+            ...(prev || []),
+            {
+                id: prev ? prev.length + 1 : 1,
+                role: 'user',
+                text: message,
+                time: new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                }),
+            },
+        ]);
         setMessage('');
-        
+
         fetch('/invoke-agent', {
             method: 'POST',
-            body: JSON.stringify({message}),
+            body: JSON.stringify({ message }),
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-            }
-        }).then(res => res.json()).then(data => {
-            setResponses((prev) => [
-                ...(prev || []),
-                {
-                    id: prev ? prev.length + 1 : 1,
-                    role: 'assistant',
-                    text: data.message || data.error || 'Error desconocido',
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                }
-            ])
-        }).catch(err => {
-            setResponses((prev) => [
-                ...(prev || []),
-                {
-                    id: prev ? prev.length + 1 : 1,
-                    role: 'assistant',
-                    text: 'Error de conexión: ' + err.message,
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                }
-            ])
-        });
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '',
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setResponses((prev) => [
+                    ...(prev || []),
+                    {
+                        id: prev ? prev.length + 1 : 1,
+                        role: 'assistant',
+                        text: data.message || data.error || 'Error desconocido',
+                        time: new Date().toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        }),
+                    },
+                ]);
+            })
+            .catch((err) => {
+                setResponses((prev) => [
+                    ...(prev || []),
+                    {
+                        id: prev ? prev.length + 1 : 1,
+                        role: 'assistant',
+                        text: 'Error de conexión: ' + err.message,
+                        time: new Date().toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        }),
+                    },
+                ]);
+            });
     }
-
 
     return (
         <div className="relative">
             <input id={toggleId} type="checkbox" className="peer sr-only" />
             <label
                 htmlFor={toggleId}
-                className="fixed bottom-6 right-6 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800"
+                className="fixed right-6 bottom-6 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800"
             >
                 Chat
                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </label>
 
-            <section className="fixed bottom-24 right-6 z-40 hidden w-90 max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-slate-50 via-white to-amber-50 shadow-xl peer-checked:flex">
+            <section className="fixed right-6 bottom-24 z-40 hidden w-90 max-w-[92vw] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-slate-50 via-white to-amber-50 shadow-xl peer-checked:flex">
                 <ChatHeader toggleId={toggleId} />
 
                 <div className="max-h-90 space-y-4 overflow-y-auto px-5 py-6">
@@ -138,10 +148,10 @@ export default function ChatWindow() {
 
                 <div className="border-t border-slate-200 bg-white px-5 py-4">
                     <div className="flex items-center gap-3">
-                        <input  
+                        <input
                             type="text"
                             value={message}
-                            onInput={e => setMessage(e.currentTarget.value)}
+                            onInput={(e) => setMessage(e.currentTarget.value)}
                             placeholder="Ask about sizing, stock, or order status..."
                             className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none"
                         />
