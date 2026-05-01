@@ -15,13 +15,13 @@ class AgentController extends Controller
             ]);
 
             $user = auth()->user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
             $response = (new SalesAssistant($user))->forUser($user)
-                        ->prompt($validated['message']);
+                ->prompt($validated['message']);
 
             return response()->json([
                 'message' => (string) $response,
